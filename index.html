@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jan 14 | የተባረከ ልደት</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+Ethiopic:wght@200;300;400;600;800&family=Pinyon+Script&display=swap" rel="stylesheet">
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root { 
+            --gold: #D4AF37; 
+            --gold-light: #fce7ac;
+            --dark: #020202; 
+        }
+        
+        body {
+            font-family: 'Noto Sans Ethiopic', sans-serif;
+            background-color: var(--dark);
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .eng-font { font-family: 'Cinzel', serif; }
+        .script-font { font-family: 'Pinyon Script', cursive; }
+
+        /* GOLD TEXT GRADIENT */
+        .text-gold-gradient {
+            background: linear-gradient(to bottom, #fcf6ba, #bf953f, #b38728);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 0px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        /* BACKGROUND ATMOSPHERE */
+        .ambient-light {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100vw; height: 100vh;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, rgba(0,0,0,0) 60%);
+            pointer-events: none; z-index: -1;
+        }
+        
+        .noise {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9998; opacity: 0.07;
+            background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+            filter: contrast(170%) brightness(100%);
+        }
+
+        /* FLOATING DUST PARTICLES */
+        .dust {
+            position: fixed; background: white; border-radius: 50%; opacity: 0.3;
+            animation: float 10s infinite linear; pointer-events: none; z-index: 0;
+        }
+        @keyframes float { 0% { transform: translateY(0px); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(-100vh); opacity: 0; } }
+
+        /* KPR REVEAL MASK */
+        .reveal-wrapper {
+            position: relative;
+            padding: 1px; /* Border width */
+            background: linear-gradient(to bottom, rgba(212,175,55,0.5), transparent);
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(212,175,55,0.1);
+        }
+        .reveal-container {
+            clip-path: inset(10% 10% 10% 10% round 20px); 
+            transition: clip-path 0.1s ease; 
+        }
+
+        /* CAKE STYLING */
+        .cake-container { position: relative; width: 140px; height: 140px; margin: 0 auto; filter: drop-shadow(0 0 30px rgba(212,175,55,0.2)); }
+        .cake-base { position: absolute; bottom: 0; width: 100%; height: 60px; background: linear-gradient(to right, #8B5E3C, #A0704C); border-radius: 10px; }
+        .cake-icing { position: absolute; bottom: 40px; width: 104%; left: -2%; height: 30px; background: #fff5e1; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .candle { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); width: 12px; height: 50px; background: linear-gradient(to right, #eee, #ddd); border-radius: 4px; }
+        .flame {
+            position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+            width: 16px; height: 30px;
+            background: radial-gradient(ellipse at bottom, #ffff00 0%, #ff8800 50%, transparent 80%);
+            border-radius: 50% 50% 20% 20%;
+            filter: blur(1px);
+            animation: flicker 0.1s infinite alternate;
+            transform-origin: bottom;
+        }
+        .flame-glow {
+            position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 60px;
+            background: radial-gradient(circle, rgba(255,165,0,0.4) 0%, transparent 70%);
+            animation: glow-pulse 2s infinite ease-in-out;
+        }
+        @keyframes flicker { 0% { transform: translateX(-50%) scale(1) rotate(-2deg); } 100% { transform: translateX(-50%) scale(1.1) rotate(2deg); } }
+        @keyframes glow-pulse { 0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); } 50% { opacity: 0.8; transform: translateX(-50%) scale(1.2); } }
+        .flame-out { opacity: 0 !important; transition: opacity 0.4s; }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <audio id="bg-music" loop preload="auto"><source src="song.mp3" type="audio/mpeg"></audio>
+
+    <!-- VISUAL FX LAYERS -->
+    <div class="ambient-light"></div>
+    <div class="noise"></div>
+    <div id="dust-container"></div> <!-- Particles injected by JS -->
+
+    <!-- 1. INTRO SCREEN -->
+    <div id="intro" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black transition-all duration-1000 px-6 text-center">
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+        
+        <div class="relative z-10 space-y-8">
+            <h1 class="eng-font text-6xl text-gold-gradient tracking-widest intro-elem opacity-0 scale-90">
+                JAN 14
+            </h1>
+            <div class="h-[1px] w-20 bg-gold/50 mx-auto intro-elem opacity-0"></div>
+            <h2 class="text-4xl font-extrabold text-white mt-4 intro-elem opacity-0 tracking-wide drop-shadow-2xl">
+                መልካም ልደት
+            </h2>
+            <p class="text-gray-400 font-light text-xs tracking-widest intro-elem opacity-0 uppercase">
+                Divine Grace • Eternal Love
+            </p>
+        </div>
+        
+        <div class="mt-16 intro-elem opacity-0 w-full max-w-[220px] relative z-20">
+            <button id="enterBtn" class="group w-full py-4 border border-gold/30 rounded-full bg-black/50 backdrop-blur-sm hover:bg-gold/10 hover:border-gold transition-all duration-500 active:scale-95">
+                <span class="text-xs font-bold tracking-[0.3em] text-white group-hover:text-gold transition-colors uppercase">ይግቡ</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN SCROLLABLE CONTENT -->
+    <main id="main-content" class="opacity-0 transition-opacity duration-1000 pb-20">
+
+        <!-- PROLOGUE -->
+        <section class="h-screen flex items-center justify-center p-8 relative">
+            <div class="text-center w-full max-w-lg relative z-10">
+                <p class="eng-font text-gold/60 text-[10px] tracking-[0.4em] mb-8 uppercase prologue-text opacity-0">Scripture</p>
+                
+                <h2 class="text-2xl md:text-3xl font-light leading-loose prologue-text opacity-0 text-white/90">
+                    "በሆድ ሳልሠራህ አውቄሃለሁ፥ <br> 
+                    ከማኅፀንም ሳትወጣ <br>
+                    <span class="text-gold-gradient font-bold text-3xl md:text-4xl">ቀድሼሃለሁ።"</span>
+                </h2>
+                <p class="mt-8 text-gray-500 text-xs tracking-widest prologue-text opacity-0 eng-font">— Jeremiah 1:5</p>
+            </div>
+        </section>
+
+        <!-- KPR STYLE REVEAL CHAPTERS -->
+        <div class="space-y-48 pb-20">
+            
+            <!-- CHAPTER 1 -->
+            <div class="relative px-4 group story-section">
+                <!-- Golden Wrapper for Glow -->
+                <div class="reveal-wrapper">
+                    <div class="reveal-container w-full h-[65vh] overflow-hidden relative">
+                        <img src="photo1.jpg" class="w-full h-full object-cover scale-125 story-img">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                        
+                        <div class="absolute bottom-12 left-6 right-6 z-20">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="h-[1px] w-8 bg-gold"></div>
+                                <span class="eng-font text-gold text-[10px] tracking-[0.3em] uppercase">Genesis</span>
+                            </div>
+                            <h3 class="text-3xl font-bold text-white mb-3 drop-shadow-lg">የዘላለም ሀሳብ</h3>
+                            <p class="text-gray-200 text-sm font-light leading-relaxed opacity-0 translate-y-6 story-text">
+                                አንቺ በአጋጣሚ የተፈጠርሽ አይደለሽም። አለም ሳይመሰረት፣ ከዋክብት ሳይቆጠሩ፣ በእግዚአብሔር ልብ ውስጥ የታተምሽ ውብ ሀሳብ ነሽ።
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHAPTER 2 -->
+            <div class="relative px-4 group story-section">
+                <div class="reveal-wrapper">
+                    <div class="reveal-container w-full h-[65vh] overflow-hidden relative">
+                        <img src="photo2.jpg" class="w-full h-full object-cover scale-125 story-img">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                        
+                        <div class="absolute bottom-12 left-6 right-6 z-20">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="h-[1px] w-8 bg-gold"></div>
+                                <span class="eng-font text-gold text-[10px] tracking-[0.3em] uppercase">Grace</span>
+                            </div>
+                            <h3 class="text-3xl font-bold text-white mb-3 drop-shadow-lg">የጸጋ ብርሃን</h3>
+                            <p class="text-gray-200 text-sm font-light leading-relaxed opacity-0 translate-y-6 story-text">
+                                እንደ ንጋት ኮከብ፣ በጽድቅ ሰማይ ላይ የምትደምቂ። ውበትሽ ከፊትሽ ብቻ ሳይሆን፣ ውስጡ ካለው ክርስቶስ የሚመነጭ የክብር ነጸብራቅ ነው።
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHAPTER 3 -->
+            <div class="relative px-4 group story-section">
+                <div class="reveal-wrapper">
+                    <div class="reveal-container w-full h-[65vh] overflow-hidden relative">
+                        <img src="photo3.jpg" class="w-full h-full object-cover scale-125 story-img">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                        
+                        <div class="absolute bottom-12 left-6 right-6 z-20">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="h-[1px] w-8 bg-gold"></div>
+                                <span class="eng-font text-gold text-[10px] tracking-[0.3em] uppercase">Identity</span>
+                            </div>
+                            <h3 class="text-3xl font-bold text-white mb-3 drop-shadow-lg">የንጉስ ልጅ</h3>
+                            <p class="text-gray-200 text-sm font-light leading-relaxed opacity-0 translate-y-6 story-text">
+                                የመስቀሉ ልጅ። በንጉሱ ፊት ሞገስን ያገኘሽ ልዕልት። ማንነትሽ በምድር ላይ ብቻ ሳይሆን በሰማይ የተጻፈ ነው።
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- NEW: INTERACTIVE CAKE -->
+        <section class="min-h-[70vh] flex flex-col items-center justify-center relative z-20 py-20">
+            <h2 class="eng-font text-gold/80 text-xs tracking-[0.3em] mb-12 uppercase">Make a Wish</h2>
+            
+            <div class="cake-container transform transition-all duration-700 hover:scale-105" id="cakeArea">
+                <div class="cake-base"></div>
+                <div class="cake-icing"></div>
+                <div class="candle">
+                    <div class="flame-glow" id="flameGlow"></div>
+                    <div class="flame" id="flame"></div>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center">
+                <button id="blowBtn" class="px-10 py-4 bg-white/5 border border-gold/40 rounded-full text-gold text-sm font-bold backdrop-blur-md shadow-[0_0_20px_rgba(212,175,55,0.1)] transition-all active:scale-95">
+                    ሻማውን አጥፊ
+                </button>
+            </div>
+        </section>
+
+        <!-- FINALE BLESSING -->
+        <section class="min-h-screen flex flex-col items-center justify-center relative z-10 px-6 text-center">
+            
+            <div class="mb-10 p-1.5 rounded-full border border-gold/50 shadow-[0_0_40px_rgba(212,175,55,0.2)]">
+                <img src="photo3.jpg" class="w-32 h-32 rounded-full object-cover opacity-90">
+            </div>
+
+            <h2 class="text-5xl font-black text-gold-gradient mb-8 drop-shadow-xl">መልካም ልደት</h2>
+            
+            <div class="h-[250px] w-full max-w-md">
+                <p id="prayer-text" class="text-lg md:text-xl text-white/90 leading-loose font-light"></p>
+            </div>
+            
+            <footer class="absolute bottom-8 w-full opacity-0 fade-in-delayed">
+                <p class="eng-font text-[10px] tracking-[0.4em] text-gray-600 uppercase">Jan 14 • 2026</p>
+            </footer>
+        </section>
+
+    </main>
+
+    <script>
+        // 1. MOBILE SMOOTH SCROLL
+        const lenis = new Lenis({ duration: 1.5, smooth: true, touchMultiplier: 2 });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        // 2. CREATE FLOATING DUST PARTICLES
+        const dustContainer = document.getElementById('dust-container');
+        for (let i = 0; i < 20; i++) {
+            let d = document.createElement('div');
+            d.classList.add('dust');
+            d.style.left = Math.random() * 100 + 'vw';
+            d.style.top = Math.random() * 100 + 'vh';
+            d.style.width = Math.random() * 3 + 'px';
+            d.style.height = d.style.width;
+            d.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            d.style.animationDelay = (Math.random() * 5) + 's';
+            dustContainer.appendChild(d);
+        }
+
+        // 3. ANIMATIONS
+        gsap.registerPlugin(ScrollTrigger, TextPlugin);
+
+        // Intro Sequence
+        const tl = gsap.timeline();
+        tl.to(".intro-elem", { y: 0, opacity: 1, duration: 1.8, stagger: 0.2, ease: "power4.out" });
+
+        document.getElementById('enterBtn').addEventListener('click', () => {
+            const audio = document.getElementById('bg-music');
+            audio.volume = 0; audio.play().then(() => gsap.to(audio, {volume: 0.8, duration: 5})).catch(e=>{});
+            
+            gsap.to("#intro", {
+                opacity: 0, duration: 1.2, pointerEvents: "none",
+                onComplete: () => {
+                    document.getElementById('main-content').classList.remove('opacity-0');
+                    initStory();
+                }
+            });
+        });
+
+        function initStory() {
+            // Verse
+            gsap.to(".prologue-text", { y: 0, opacity: 1, duration: 2, stagger: 0.4, ease: "power2.out" });
+
+            // "KPR Style" Image Reveals
+            const sections = document.querySelectorAll('.story-section');
+            sections.forEach(sec => {
+                const container = sec.querySelector('.reveal-container');
+                const img = sec.querySelector('.story-img');
+                const text = sec.querySelector('.story-text');
+
+                // The Curtain Open Effect
+                gsap.to(container, {
+                    clipPath: "inset(0% 0% 0% 0% round 0px)",
+                    scrollTrigger: {
+                        trigger: sec,
+                        start: "top 75%",
+                        end: "top 25%",
+                        scrub: 1.5
+                    }
+                });
+
+                // Cinematic Zoom Out (Parallax)
+                gsap.fromTo(img, 
+                    { scale: 1.3 },
+                    {
+                        scale: 1.0,
+                        scrollTrigger: {
+                            trigger: sec,
+                            start: "top 80%",
+                            end: "bottom top",
+                            scrub: true
+                        }
+                    }
+                );
+
+                // Text Slide Up
+                gsap.to(text, {
+                    y: 0, opacity: 1, duration: 1.5, ease: "power3.out",
+                    scrollTrigger: { trigger: sec, start: "top 60%" }
+                });
+            });
+
+            // Prayer Typing (Deep Spiritual Poetry)
+            gsap.to("#prayer-text", {
+                scrollTrigger: { trigger: "#prayer-text", start: "top 80%" },
+                text: { 
+                    value: "የሰላም አምላክ ዘመንሽን ይባርክ። እንደ ወይን ፍሬ ያለምልምሽ። ፊቱ ያብራልሽ፣ በወጣሽ በገባሽ ቁጥር ጥበቃው አይለይሽ። ዛሬ ብቻ ሳይሆን በዘመንሽ ሁሉ፣ በክርስቶስ ፍቅር ለዘላለም የተወደድሽ ነሽ።",
+                    delimiter: "" 
+                },
+                duration: 14, ease: "none",
+                onComplete: () => {
+                    gsap.to(".fade-in-delayed", { opacity: 1, duration: 1 });
+                }
+            });
+        }
+
+        // 4. CAKE INTERACTION
+        const blowBtn = document.getElementById('blowBtn');
+        const flame = document.getElementById('flame');
+        const flameGlow = document.getElementById('flameGlow');
+        
+        blowBtn.addEventListener('click', () => {
+            // 1. Blow out flame
+            flame.classList.add('flame-out');
+            flameGlow.classList.add('flame-out');
+            
+            // 2. Explode Gold Confetti
+            confetti({
+                particleCount: 200, spread: 80, origin: { y: 0.6 },
+                colors: ['#D4AF37', '#ffffff', '#fce7ac'],
+                gravity: 0.8, scalar: 1.2, drift: 0
+            });
+
+            // 3. Change Button
+            blowBtn.textContent = "የልብሽ መሻት ይፈፀም!";
+            blowBtn.style.background = "rgba(212,175,55,0.2)";
+            blowBtn.style.borderColor = "#D4AF37";
+            blowBtn.style.color = "white";
+
+            // 4. Secondary sparkles
+            setTimeout(() => {
+                confetti({
+                    particleCount: 100, spread: 120, origin: { y: 0.6 },
+                    shapes: ['star'], colors: ['#D4AF37'], startVelocity: 20
+                });
+            }, 400);
+        });
+    </script>
+</body>
+</html>
